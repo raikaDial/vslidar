@@ -1,0 +1,20 @@
+image_width: 640
+image_height: 480
+camera_name: chromebook_builtin_camera
+camera_matrix:
+  rows: 3
+  cols: 3
+  data: [651.8627248394602, 0, 343.6400774933359, 0, 651.6635138348814, 240.7537607545541, 0, 0, 1]
+distortion_model: plumb_bob
+distortion_coefficients:
+  rows: 1
+  cols: 5
+  data: [0.07753151974253121, -0.2152299647963423, 0.0008589649716409785, 0.003049613485718478, 0]
+rectification_matrix:
+  rows: 3
+  cols: 3
+  data: [1, 0, 0, 0, 1, 0, 0, 0, 1]
+projection_matrix:
+  rows: 3
+  cols: 4
+  data: [654.2083129882812, 0, 344.8416418554662, 0, 0, 655.7007446289062, 240.514068738632, 0, 0, 0, 1, 0]

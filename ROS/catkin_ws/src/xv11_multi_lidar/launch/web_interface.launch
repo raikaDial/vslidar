@@ -1,0 +1,11 @@
+<launch>
+	<node name="rosbridge_websocket" pkg="rosbridge_server" type="rosbridge_websocket" output="screen">
+		<param name="authenticate" value="false"/>
+		<param name="port" value="9090"/>
+		<param name="interface" value=""/>
+		<param name="fragment_timeout" value="600"/>
+		<param name="delay_between_messages" value="0"/>
+		<param name="max_message_size" value="None"/>
+	</node>
+	<node name="rosapi" pkg="rosapi" type="rosapi_node"/>
+</launch>

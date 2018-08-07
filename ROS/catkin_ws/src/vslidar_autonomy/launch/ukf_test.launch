@@ -1,0 +1,40 @@
+<launch>
+	<!-- Play Bag Containing Rectangular Path Data-->
+	<node pkg="rosbag" type="play" name="robot" output="screen" args="--clock /home/moose/2017-11-20-12-55-28.bag"/>
+
+	<!-- Static transforms to convert the 3D LIDAR coordinates to the base_footprint coordinates of the robot -->
+	<node pkg="tf2_ros" type="static_transform_publisher" name="base_laser_to_base_laser_1" args="0.0141 0 0.2482 0 0.872665 0 /base_laser /base_laser_1" />
+	<node pkg="tf2_ros" type="static_transform_publisher" name="base_laser_to_base_laser_2" args="0.001397 -0.121 0.3975 1.57079632679 0 0 /base_laser /base_laser_2" />
+	<node pkg="tf2_ros" type="static_transform_publisher" name="base_link_to_base_laser" args="0 0 -0.0084 0 0 0 /base_link /base_laser"/>
+	<!-- <node pkg="tf2_ros" type="static_transform_publisher" name="base_link_to_imu_link" args="0 0 0 1.5708 0 0 /base_link /imu_link"/> -->
+	<node pkg="tf2_ros" type="static_transform_publisher" name="base_link_to_imu_link" args="0 0 0 0 0 0 /base_link /imu_link"/>
+	<node pkg="tf2_ros" type="static_transform_publisher" name="base_footprint_to_base_link" args="0 0 .36 0 0 0 /base_footprint /base_link"/>
+
+
+	<!-- Fuse Odom and IMU Data Into Initial Localization Estimate -->
+	<node pkg="robot_localization" type="ukf_localization_node" name="ukf_imu_odom" output="screen">
+		<rosparam command="load" file="$(find vslidar_autonomy)/config/ukf_imu_odom_params.yaml"/>
+	</node>
+<!-- 	<node pkg="robot_pose_ekf" type="robot_pose_ekf" name="robot_pose_ekf" output="screen">
+		<param name="output_frame" value="odom"/>
+		<param name="freq" value="30.0"/>
+		<param name="sensor_timeout" value="0.1"/>
+		<param name="odom_used" value="true"/>
+		<param name="imu_used" value="true"/>
+		<param name="vo_used" value="false"/>
+		<param name="debug" value="true"/>
+		<param name="self_diagnose" value="false"/>
+		<remap from="imu_data" to="imu"/>
+	</node> -->
+
+	<!-- Publish Trajectory of fused odometry -->
+	<node pkg="hector_trajectory_server" type="hector_trajectory_server" name="hector_trajectory_server_odom" output="screen">
+		<param name="target_frame_name" type="string" value="odom"/>
+		<param name="source_frame_name" type="string" value="base_link"/>
+		<param name="trajectory_publish_rate" type="double" value="2"/>
+		<remap from="trajectory" to="trajectory_odom_filtered"/>
+	</node>
+
+	<!-- Open Up RVIZ to View Robot's Trajectory -->
+	<node pkg="rviz" type="rviz" name="rviz"/>
+</launch>

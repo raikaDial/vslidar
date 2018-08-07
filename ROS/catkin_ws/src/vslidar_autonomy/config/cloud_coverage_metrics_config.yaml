@@ -1,0 +1,8 @@
+publish_accumulated_cloud: true
+voxel_resolution: 0.1
+use_voxel_metric: false
+publish_voxel_cloud: false
+use_dist_std_dev_metric: false
+use_planar_metric: true
+publish_coverage_visuals: true
+coverage_grid_resolution: 0.025

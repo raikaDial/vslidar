@@ -1,0 +1,13 @@
+<launch>
+	<!-- Driver for Create 2 Robot -->
+	<arg name="config" default="$(find vslidar_autonomy)/config/create2.yaml"/>
+	<arg name="desc" default="true"/>
+
+	<node name="ca_driver" pkg="ca_driver" type="ca_driver">
+		<rosparam command="load" file="$(arg config)"/>
+		<param name="robot_model" value="CREATE_2"/>
+		<param name="loop_hz" value="30.0"/>
+	</node>
+
+<!-- 	<node pkg="system_tests" type="robot_motion_test_node" name="robot_motion_test_node" output="screen"/> -->
+</launch>

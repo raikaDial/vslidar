@@ -1,0 +1,20 @@
+image_width: 640
+image_height: 480
+camera_name: genius_webcam
+camera_matrix:
+  rows: 3
+  cols: 3
+  data: [309.2237076128541, 0, 336.0229157667009, 0, 308.6909874553469, 233.1971497375141, 0, 0, 1]
+distortion_model: plumb_bob
+distortion_coefficients:
+  rows: 1
+  cols: 5
+  data: [-0.01089661015496679, -0.01508522982056723, 0.0001266879491193319, -0.001762412098296737, 0]
+rectification_matrix:
+  rows: 3
+  cols: 3
+  data: [1, 0, 0, 0, 1, 0, 0, 0, 1]
+projection_matrix:
+  rows: 3
+  cols: 4
+  data: [298.7946472167969, 0, 335.3335724099306, 0, 0, 304.1982421875, 232.5241154917167, 0, 0, 0, 1, 0]

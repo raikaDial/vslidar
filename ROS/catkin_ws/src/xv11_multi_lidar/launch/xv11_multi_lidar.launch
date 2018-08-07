@@ -1,0 +1,98 @@
+<launch>
+	<!-- Connect to the microcontroller -->
+    <node pkg="rosserial_server" type="serial_node" name="rosserial_server" output="screen">
+		<param name="port" value="/dev/ttyACM0"/>
+		<param name="baud" value="921600"/>
+		<!-- Make sure to use soft-tabs within rosparam block, or YAML wont parse. -->
+        <rosparam>
+            require:
+                publishers: [xv11_scan_raw_1, xv11_scan_raw_2, imu_data_raw, ax12_done_panning_1, ax12_done_panning_2]
+                subscribers: [pan_params]
+        </rosparam>
+    </node>
+    <node pkg="rosserial_python" type="message_info_service.py" name="rosserial_message_info" output="screen"/>
+
+    <!-- These nodes parse packets from the LIDARs and compile the measurements into LaserScan packets -->
+    <!-- They also broadcast the pan angle transform that allows the scans to be turned into point clouds -->
+    <node pkg="xv11_multi_lidar" name="xv11_raw2scan_wtf_node_1" type="xv11_raw2scan_wtf_node" output="screen">]
+    	<param name="topic_postfix" value = "_1" />
+    </node>
+    <node pkg="xv11_multi_lidar" name="xv11_raw2scan_wtf_node_2" type="xv11_raw2scan_wtf_node" output="screen">
+    	<param name="topic_postfix" value = "_2" />
+    </node>
+
+    <!-- This node constructs IMU packets -->
+    <node pkg="xv11_multi_lidar" name="xv11_raw2imu_node" type="xv11_raw2imu_node" output="screen"/>
+
+	<!-- These nodes transform the LaserScans to PointCloud2's. -->
+	<node pkg="xv11_multi_lidar" name="scan2cloud_node_1" type="scan2cloud_node" output="screen">
+		<rosparam command="load" file="$(find vslidar_autonomy)/config/cloud_filter_params.yaml"/>
+		<param name="topic_postfix" value="_1"/>
+	</node>
+	<node pkg="xv11_multi_lidar" name="scan2cloud_node_2" type="scan2cloud_node" output="screen">
+		<rosparam command="load" file="$(find vslidar_autonomy)/config/cloud_filter_params.yaml"/>
+		<param name="topic_postfix" value="_2"/>
+	</node>
+
+	<node pkg="xv11_multi_lidar" name="cloud_accumulator_node_1" type="cloud_accumulator_node">
+		<param name="topic_postfix" value="_1"/>
+	</node>
+	<node pkg="xv11_multi_lidar" name="cloud_accumulator_node_2" type="cloud_accumulator_node">
+		<param name="topic_postfix" value="_2"/>
+	</node>
+
+	<!-- This node extracts obstacles from point clouds for the navigation stack -->
+	<!-- Its output clouds are used to mark obstacles in the costmap -->
+	<node pkg="xv11_multi_lidar" name="cloud2obstaclemap_node" type="cloud2obstaclemap_node" output="screen">
+		<param name="publish_frequency" type="double" value="5.0"/>
+		<param name="min_obstacle_height" type="double" value="0.05"/>
+		<param name="max_obstacle_height" type="double" value="1.0"/>
+		<param name="min_obstacle_depth" type="double" value="-0.05"/>
+		<param name="max_obstacle_depth" type="double" value="-1.0"/>
+	</node>
+
+<!-- 	<node pkg="xv11_multi_lidar" name="var_scan_test_node" type="var_scan_test_node"/> -->
+
+	<!-- This node accumulates obstacle clouds for Google Cartographer to use for localization -->
+<!-- 	<node pkg="xv11_multi_lidar" name="cloud_accumulator_node" type="cloud_accumulator_node">
+		<remap from="points2" to="cloud_obstacles_accumulated"/>
+		<param name="subscribe_to_obstacle_cloud" value="true"/>
+		<param name="subscribe_to_raw_clouds" value="false"/>
+	</node>
+ -->
+	<node pkg="xv11_multi_lidar" name="aruco_pose_repack_node" type="aruco_pose_repack_node" output="screen"/>
+
+<!-- 	<node pkg="xv11_multi_lidar" name="cloud_coverage_metrics_node_1" type="cloud_coverage_metrics_node" output="screen">
+		<rosparam command="load" file="$(find vslidar_autonomy)/config/cloud_coverage_metrics_config.yaml"/>
+		<param name="lidar_ID" value="1"/>
+	</node> -->
+<!-- 	<node pkg="xv11_multi_lidar" name="cloud_coverage_metrics_node_2" type="cloud_coverage_metrics_node" output="screen">
+		<rosparam command="load" file="$(find vslidar_autonomy)/config/cloud_coverage_metrics_config.yaml"/>
+		<param name="lidar_ID" value="2"/>
+	</node> -->
+
+	<!-- These nodes work together to dither the LIDAR sensors for optimal cloud coverage -->
+<!-- 	<node pkg="xv11_multi_lidar" name="cloud_coverage_metrics_node_1" type="cloud_coverage_metrics_node" output="screen">
+		<rosparam command="load" file="$(find vslidar_autonomy)/config/cloud_coverage_metrics_config.yaml"/>
+		<param name="lidar_ID" value="1"/>
+	</node>
+	<node pkg="xv11_multi_lidar" name="adaptive_dither_dqn_node_1" type="adaptive_dither_dqn_node.py" output="screen">
+		<param name="lidar_ID" value="1"/>
+	</node> -->
+<!-- 	<node pkg="xv11_multi_lidar" name="cloud_coverage_metrics_node_2" type="cloud_coverage_metrics_node" output="screen">
+		<rosparam command="load" file="$(find vslidar_autonomy)/config/cloud_coverage_metrics_config.yaml"/>
+		<param name="lidar_ID" value="2"/>
+	</node>
+	<node pkg="xv11_multi_lidar" name="adaptive_dither_dqn_node_2" type="adaptive_dither_dqn_node.py" output="screen">
+		<param name="lidar_ID" value="2"/>
+	</node> -->
+
+	<!-- Static transforms to convert the 3D LIDAR coordinates to the base_footprint coordinates of the robot -->
+	<node pkg="tf2_ros" type="static_transform_publisher" name="base_laser_to_base_laser_1" args="0.0141 0 0.2582 0.017 0.89 0.034 base_laser base_laser_1" />
+<!-- 	<node pkg="tf2_ros" type="static_transform_publisher" name="base_laser_to_base_laser_2" args="0.0125 -0.121 0.3975 1.57079632679 0 0.0174533 base_laser base_laser_2" /> -->
+	<node pkg="tf2_ros" type="static_transform_publisher" name="base_laser_to_base_laser_2" args="0.0125 -0.121 0.3975 1.57079632679 0 0 base_laser base_laser_2" />
+	<node pkg="tf2_ros" type="static_transform_publisher" name="base_link_to_base_laser" args="0 0 -0.0084 0 0 0 base_link base_laser"/>
+	<node pkg="tf2_ros" type="static_transform_publisher" name="base_link_to_imu_link" args="0 0 0 0 0 0 base_link imu_link"/>
+	<node pkg="tf2_ros" type="static_transform_publisher" name="base_link_to_usb_cam" args="0.155 0 -0.047625 0 0 0  /base_link /usb_cam"/>
+	<node pkg="tf2_ros" type="static_transform_publisher" name="base_footprint_to_base_link" args="0 0 .347 0 0 0 base_footprint base_link"/>
+</launch>

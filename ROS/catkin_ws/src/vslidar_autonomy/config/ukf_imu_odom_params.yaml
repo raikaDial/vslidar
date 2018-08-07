@@ -1,0 +1,97 @@
+### Global Params
+frequency: 10
+sensor_timeout: 0.15 # make slightly longer than inverse of frequency to account for update rate variations
+
+# Don't use any 3D motion information in state estimate
+two_d_mode: true
+
+map_frame: map              # Defaults to "map" if unspecified
+odom_frame: odom            # Defaults to "odom" if unspecified
+base_link_frame: base_footprint  # Defaults to "base_link" if unspecified
+world_frame: odom           # Defaults to the value of odom_frame if unspecified
+
+print_diagnostics: true
+
+
+### Odometry Configuration
+odom0: /odom
+
+# Each sensor reading updates some or all of the filter's state. These options give you greater 
+# control over which values from each measurement are fed to the filter. The order of the values is
+# x, y, z, roll, pitch, yaw, vx, vy, vz, vroll, vpitch, vyaw, ax, ay, az.
+
+# Since x,y, and yaw are derived quantities of vx and vyaw, only need to include velocities
+# vy is always 0 because our robot is differential drive. Still, fusing this 0 helps with filtering.
+odom0_config: [false,  false,  false,
+               false, false, false,
+               true, true, false,
+               false, false, false,
+               false, false, false]
+
+# Save a couple odom messages so we can fuse more data.
+#odom0_queue_size: 2
+
+# Disable Nagle's Algorithm to support high frequency publishing
+odom0_nodelay: true
+
+odom0_differential: false
+odom0_relative: false
+
+#odom0_twist_rejection_threshold: 1
+
+### IMU Configuration
+imu0: /imu_gravity
+
+# Don't use ay (very noisy and robot is most likely not moving along that axis
+# Filter needs full orientation estimate to remove gravity signal
+imu0_config: [false, false, false,
+              true, true, true,
+              false, false, false,
+              false, false, false,
+              false, false, false]
+
+# The IMU can remove the gravity signal itself, but it is used by Cartogropher, so the filter will remove it instead.
+#imu0_remove_gravitational_acceleration: true
+
+# Save a couple imu messages so we can fuse more data.
+#imu0_queue_size: 2
+
+# Disable Nagle's Algorithm to support high frequency publishing
+imu0_nodelay: true
+
+imu0_differential: false
+imu0_relative: true
+
+# imu0_linear_acceleration_rejection_threshold: 0.8
+
+### Aruco Pose Configuration
+pose0: /aruco_pose_cov
+
+pose0_config: [true, true, false,
+               false, false, false,
+               false, false, false,
+               false, false, false,
+               false, false, false
+]
+
+pose0_nodelay: true
+pose0_differential: false
+pose0_relative: false
+
+### Advanced Parameters
+
+# Stop growing estimate error covariance when robot isn't moving
+dynamic_process_noise_covariance: true 
+
+# Differentiate cmd_vel to obtain acceleration.
+# use_control: true
+# control_timeout: 0.2
+
+# control_config: [true, false, false,
+#                  false, false, true]
+
+# acceleration_limits: [6.0, 0.0, 0.0,
+#                       0.0, 0.0, 30.0]
+
+# acceleration_gains: [6.0, 0.0, 0.0,
+#                      0.0, 0.0, 30.0]

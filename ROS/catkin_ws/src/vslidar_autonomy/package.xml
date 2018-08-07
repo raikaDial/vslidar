@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>vslidar_autonomy</name>
+  <version>1.0.0</version>
+  <description>This package contains launch and config files for the VS-LIDAR autonomy system.</description>
+  <maintainer email="ryker.dial@gmail.com">Ryker Dial</maintainer>
+  <license>MIT</license>
+  <buildtool_depend>catkin</buildtool_depend>
+</package>

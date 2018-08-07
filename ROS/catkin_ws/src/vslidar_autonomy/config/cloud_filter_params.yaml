@@ -1,0 +1,15 @@
+# cloud_filter_params.yaml
+# Specifications for point cloud filters.
+
+# Specifications for the bounding box filter.
+# X, Y, and Z dimensions of the robot's bounding box in meters.
+# Removes all points within box.
+robot_x: 0.35
+robot_y: 0.35
+robot_z: 0.80
+
+# Specifications for the passthrough filter.
+# Minimum and maximum height of points in meters.
+# Removes all points lower than min and higher than max.
+pass_filter_min_z: -0.5
+pass_filter_max_z: 2.0

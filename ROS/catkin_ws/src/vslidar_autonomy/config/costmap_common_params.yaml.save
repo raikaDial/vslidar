@@ -1,0 +1,58 @@
+# 2D XY Footprint of Robot.
+#footprint: [[-0.165, 0.23], [0.165, 0.23], [0.165, -0.23], [-0.165, -0.23]]
+robot_radius: 0.18 #0.205 #0.18
+
+# static_layer:
+#   map_topic: map
+
+inflation_layer:
+  # inflation_radius: 0.1
+  inflation_radius: 0.1 #0.1 #2.5
+  cost_scaling_factor: 2.58
+  
+obstacle_layer:
+  transform_tolerence: 0.5
+
+  # Robot clears cells that it occupies
+  footprint_clearing_enabled: false
+
+  observation_sources: marking_cloud clearing_cloud
+  # marking_cloud: {sensor_frame: base_footprint, data_type: PointCloud2, 
+  #     topic: cloud_obstacles, marking: true, clearing: true, expected_update_rate: 0.2,
+  #     observation_persistence: 6.0
+  # }
+  # obstacle_cloud: {sensor_frame: base_footprint, data_type: PointCloud2, 
+  #     topic: cloud_obstacles, marking: true, clearing: true, expected_update_rate: 0.2, min_obstacle_height: -1.0, 
+  #     max_obstacle_height: 1.0, obstacle_range: 2.5, raytrace_range: 3.0, observation_persistence: 3.0
+  # }
+  marking_cloud: {sensor_frame: base_footprint, data_type: PointCloud2, 
+      topic: cloud_obstacles_marking, marking: true, clearing: false, expected_update_rate: 0.2, min_obstacle_height: -1.0, 
+      max_obstacle_height: 1.0, obstacle_range: 2.5, raytrace_range: 3.0
+  }
+  marking_cloud: {sensor_frame: base_footprint, data_type: PointCloud2, 
+      topic: cloud_obstacles_clearing, marking: true, clearing: true,  min_obstacle_height: -1.0, 
+      max_obstacle_height: 1.0, obstacle_range: 2.5, raytrace_range: 3.0
+  }
+
+# voxel_layer:
+#   obstacle_range: 3.0
+#   raytrace_range: 2.5
+
+#   # Height of voxel map is resolution * # of voxels.
+#   # Only need 1 meter for the VS-LIDAR Platform
+#   z_resolution: 0.1
+#   z_voxels: 20
+
+#   # Robot clears cells that it occupies
+#   footprint_clearing_enabled: false
+
+#   publish_voxel_map: false
+
+#   observation_sources: marking_cloud clearing_cloud
+
+#   marking_cloud: {sensor_frame: base_footprint, data_type: PointCloud2, 
+#       topic: cloud_obstacles, marking: true, clearing: false, expected_update_rate: 0.1, min_obstacle_height: 0.05, max_obstacle_height: 1.0
+#   }
+#   clearing_cloud: {sensor_frame: base_footprint, data_type: PointCloud2, 
+#       topic: cloud_obstacles_accumulated, marking: true, clearing: true, min_obstacle_height: 0.05, max_obstacle_height: 1.0
+#   }  

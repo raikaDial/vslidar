@@ -1,0 +1,67 @@
+<launch>
+	<!-- Driver for Create 2 Robot -->
+	<arg name="config" default="$(find vslidar_autonomy)/config/create2.yaml"/>
+	<arg name="desc" default="true"/>
+
+	<node name="ca_driver" pkg="ca_driver" type="ca_driver" output="screen">
+		<rosparam command="load" file="$(arg config)"/>
+		<param name="robot_model" value="CREATE_2"/>
+<!-- 		<param name="publish_tf" value="true"/> -->
+	</node>
+
+	<!-- Driver for 3D LIDAR System -->
+	<include file="$(find xv11_multi_lidar)/launch/xv11_multi_lidar.launch"/>
+
+	<!-- Fuse Odom and IMU Data Into Initial Localization Estimate -->
+	<node pkg="robot_localization" type="ekf_localization_node" name="ekf_imu_odom" output="screen">
+		<rosparam command="load" file="$(find vslidar_autonomy)/config/ukf_imu_odom_params.yaml"/>
+	</node>
+
+	<!-- Launch Camera Driver -->
+	<node name="usb_cam" pkg="usb_cam" type="usb_cam_node" output="screen">
+		<param name="video_device" value="/dev/video1"/>
+		<param name="camera_info_url" value="file://$(find vslidar_autonomy)/config/camera_calib/genius_webcam_calib.yaml"/>
+		<param name="camera_name" value="genius_webcam"/>
+		<param name="image_width" value="640"/>
+	    <param name="image_height" value="480"/>
+	    <param name="pixel_format" value="mjpeg"/>
+	    <param name="camera_frame_id" value="usb_cam"/>
+	    <param name="io_method" value="mmap"/>
+	</node>
+
+	<!-- Launch Aruco Localizer -->
+    <node pkg="aruco_mapping" type="aruco_mapping" name="aruco_mapping" output="screen">
+	    <remap from="/image_raw" to="/usb_cam/image_raw"/>
+	    <param name="calibration_file" type="string" value="$(find vslidar_autonomy)/config/camera_calib/genius_webcam_calib.ini"/>
+	    <param name="num_of_markers" type="int" value="1" />
+	    <param name="marker_size" type="double" value="0.508"/>
+	    <param name="space_type" type="string" value="plane" />
+	    <param name="roi_allowed" type="bool" value="false" />    	
+	</node>
+
+	<!-- Navigation Stack -->	
+	<node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+		<param name="controller_frequency" value="5.0"/>
+		<param name="base_global_planner" value="global_planner/GlobalPlanner"/>
+		<rosparam file="$(find vslidar_autonomy)/config/costmap_common_params.yaml" command="load" ns="global_costmap"/>
+		<rosparam file="$(find vslidar_autonomy)/config/costmap_common_params.yaml" command="load" ns="local_costmap"/>
+		<rosparam file="$(find vslidar_autonomy)/config/local_costmap_params.yaml" command="load"/>
+		<rosparam file="$(find vslidar_autonomy)/config/global_costmap_params.yaml" command="load"/>
+		<rosparam file="$(find vslidar_autonomy)/config/base_local_planner_params.yaml" command="load"/>
+	</node>
+
+	<!-- Google Cartographer for 3D SLAM -->
+<!-- 	<node pkg="cartographer_ros" type="cartographer_node" name="cartographer_node" args="-configuration_directory $(find vslidar_autonomy)/config -configuration_basename vslidar_cartographer_config.lua" output="screen">
+		<remap from="imu" to="imu_gravity"/>
+		<remap from="odom" to="odometry/filtered"/>
+	</node>
+	<node pkg="cartographer_ros" type="cartographer_occupancy_grid_node" name="cartographer_occupancy_grid_node" args="-resolution 0.1"/> -->
+
+	<!-- Publish Trajectory of filtered odometry -->
+<!-- 	<node pkg="hector_trajectory_server" type="hector_trajectory_server" name="hector_trajectory_server_odom" output="screen">
+		<param name="target_frame_name" type="string" value="odom"/>
+		<param name="source_frame_name" type="string" value="base_link"/>
+		<param name="trajectory_publish_rate" type="double" value="10"/>
+		<remap from="trajectory" to="trajectory_odom_filtered"/>
+	</node> -->
+</launch>

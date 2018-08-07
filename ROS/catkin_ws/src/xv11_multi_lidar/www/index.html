@@ -1,0 +1,33 @@
+<!doctype html>
+<html class="no-js" lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+  </head>
+  <body>
+
+    <div>
+      <h2>Panning Parameter Modifications. A value of -1 means to leave unmodified.</h2>
+      <p>LIDAR ID</p>
+      <select id="lidarIDSelectID">
+        <option value="1">1</option>
+        <option value="2">2</option>
+      </select>
+      <p>Rotation Speed</p>
+      <input type="range" name="rotationSpeedInputName" id="rotationSpeedInputId" value="-1" min="-1" max="256" step="1" oninput="rotationSpeedOutputId.value=rotationSpeedInputId.value"/>
+      <output name="rotationSpeedOutputName" id="rotationSpeedOutputId">-1</output>
+      <p>Clockwise Limit. Must be less than CCW limit. Both limits must be specified to change.</p>
+      <input type="range" name="cwLimitInputName" id="cwLimitInputId" value="-1" min="-1" max="300" step="1" oninput="cwLimitOutputId.value=cwLimitInputId.value"/>
+      <output name="cwLimitOutputName" id="cwLimitOutputId">-1</output>
+      <p>Counterclockwise Limit.</p>
+      <input type="range" name="ccwLimitInputName" id="ccwLimitInputId" value="-1" min="-1" max="300" step="1" oninput="ccwLimitOutputId.value=ccwLimitInputId.value"/>
+      <output name="ccwLimitOutputName" id="ccwLimitOutputId">-1</output>
+    </div>
+    <div>
+      <button type="button" onclick="pan_param_reconfigure.publishPanningParams()">Send Configuration</button>
+    </div>
+
+    <script src="js/roslib.min.js"></script>
+    <script src="js/eventemitter2.min.js"></script>
+    <script src="js/pan_param_pub.js"></script>
+  </body>
+</html>
